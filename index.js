@@ -4,6 +4,7 @@ module.exports = ShareDBCodeMirror;
 
 function ShareDBCodeMirror(codemirror, doc, path) {
     TextDiffBinding.call(this, codemirror.getInputField());
+    this.codemirror = codemirror;
     this.doc = doc;
     this.path = path || [];
     this._opListener = null;
@@ -17,6 +18,26 @@ ShareDBCodeMirror.prototype.setup = function() {
     this.update();
     this.attachDoc();
     this.attachElement();
+    // this.assertValue(this.doc.data);
+};
+
+ShareDBCodeMirror.prototype.assertValue = function(expectedValue) {
+    var editorValue = this.codemirror.getValue();
+
+    if (expectedValue !== editorValue) {
+        console.error(
+            "Value in CodeMirror doesn't match expected value:\n\n",
+            "Expected Value:\n", expectedValue,
+            "\n\nEditor Value:\n", editorValue);
+
+        // this._suppressChange = true;
+        this.codemirror.setValue(expectedValue);
+        // this._suppressChange = false;
+
+        return false;
+    }
+
+    return true;
 };
 
 ShareDBCodeMirror.prototype.destroy = function() {
@@ -29,11 +50,13 @@ ShareDBCodeMirror.prototype.attachElement = function() {
     this._inputListener = function() {
         binding.onInput();
     };
-    this.codeMirror.addEventListener('input', this._inputListener, false);
+    console.log("attach element addEventListener");
+    this.codemirror.on('input', this._inputListener, false);
+    console.log("after addEventListener")
 };
 
 ShareDBCodeMirror.prototype.detachElement = function() {
-    this.codeMirror.removeEventListener('input', this._inputListener, false);
+    this.codemirror.off('input', this._inputListener, false);
 };
 
 ShareDBCodeMirror.prototype.attachDoc = function() {
@@ -68,6 +91,7 @@ ShareDBCodeMirror.prototype._parseInsertOp = function(component) {
     var index = component.p[component.p.length - 1];
     var length = component.si.length;
     this.onInsert(index, length);
+    // this.assertValue(this.doc.data);
 };
 
 ShareDBCodeMirror.prototype._parseRemoveOp = function(component) {
@@ -75,10 +99,13 @@ ShareDBCodeMirror.prototype._parseRemoveOp = function(component) {
     var index = component.p[component.p.length - 1];
     var length = component.sd.length;
     this.onRemove(index, length);
+    // this.assertValue(this.doc.data);
+
 };
 
 ShareDBCodeMirror.prototype._parseParentOp = function() {
     this.update();
+    // this.assertValue(this.doc.data);
 };
 
 ShareDBCodeMirror.prototype._get = function() {

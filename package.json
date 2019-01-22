@@ -26,6 +26,6 @@
   "author": "Nate Smith",
   "license": "MIT",
   "dependencies": {
-    "text-diff-binding": "^1.0.0"
+    "text-diff-binding": "github:adrianmmartinez/text-diff-binding"
   }
 }
